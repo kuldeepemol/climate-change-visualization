@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Global Temperature Change</title>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>-->
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+    <!--<link rel="stylesheet" href="assets/css/style.css">-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/d3Style.css') }}">
+
+</head>
+
+<body>
+
+  <div class="container">
+      <div class="row">
+          <div class="col-md-12 jumbotron text-center">
+              <h1>Global Temperature Dashboard</h1>
+              <p>Explore temperature by country and city of interest</p>
+          </div>
+      </div>
+
+      <ul class="nav nav-tabs" role="tablist">
+          <li class="active"><a data-toggle="tab" href="#global">Global</a></li>
+          <li><a data-toggle="tab" href="#city-country">Country and City</a></li>
+      </ul>
+
+      <div class="tab-content">
+          <div id="global" class="tab-pane fade in active">
+              <h3>Temperature vs Pollutant trends</h3>
+              <div class="row">
+                  <div class="col-md-6">
+                      <p>
+                            <div id="global-scatter"></div>
+                      </p>
+                  </div>
+                  <div class="col-md-6">
+                      <div id="pollutant-scatter"></div>
+                  </div>
+              </div>
+          </div>
+          <div id="city-country" class="tab-pane fade">
+              <div class="row">
+                  <div class="col-md-3">
+                      <p>
+                        <div class="well">
+                        <h5>SELECT Country:</h5>
+                        <select id="selCountryDataset" onchange="optionCountryChanged(this.value)"></select>
+                        </div>
+                        <div class="well">
+                            <h5>SELECT City:</h5>
+                            <select id="selCityDataset" onchange="optionCityChanged(this.value)"></select>
+                        </div>
+                      </p>
+                  </div>
+                  <div class="col-md-9">
+                      <div id="scatter"></div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="{{ url_for('static', filename='js/d3-plot.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+
+</html>
