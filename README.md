@@ -1,7 +1,3 @@
-# Project 2 – Proposal
-
-#
-
 # Global Temperature Visualization
 
 ** **
