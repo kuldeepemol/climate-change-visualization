@@ -20,21 +20,13 @@ var baseMaps = {
     "Grayscale": grayscalemap,
 };
 
+var currentTime = new Date('2000-01-01');
+
 // Create our map, giving it the satellite map, earthquakes and faultline layers to display on load
 var myMap = L.map("map-timeline", {
-    center: [
-        //37.09, -95.71
-        0, 0
-    ],
+    center: [0, 0],
     zoom: 1.5,
     layers: [grayscalemap],
-    /*timeDimension: true,
-    timeDimensionOptions: {
-        timeInterval: "1850-01-01/2013-01-01",
-        period: "P1Y",
-        currentTime: '1850-01-01',
-    },
-    timeDimensionControl: true,*/
 });
 
 // Create a layer control
@@ -64,3 +56,8 @@ d3.json(url).then(function(geoJSON) {
     }).addTo(myMap);
 
 });
+
+//var testGeoJsonLayer = L.timeDimension.layer.ajaxGeoJSON({
+//    baseURL: 'timeline/geoJSON/',
+//});
+//testGeoJsonLayer.addTo(myMap);

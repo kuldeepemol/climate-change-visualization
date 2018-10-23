@@ -89,7 +89,7 @@ with open(filename, 'r') as csvfile:
     print('\n')
 
 
-# Get the GlobalLandTemperaturesByCountry.csv file to read data from: path where the program resides
+'''# Get the GlobalLandTemperaturesByCountry.csv file to read data from: path where the program resides
 filename = os.path.join(os.path.dirname(__file__),
                         '..',
                         'Resources',
@@ -192,6 +192,7 @@ with open(filename, 'r') as csvfile:
 
     print(f'\nSQLAlchemy Core: Total time for {row_count} records for table global_temperature_by_state'
           f' {time.time() - t0} secs\n')
+'''
 
 # Get the GlobalLandTemperaturesByMajorCity.csv file to read data from: path where the program resides
 filename = os.path.join(os.path.dirname(__file__),
@@ -259,7 +260,7 @@ with open(filename, 'r') as csvfile:
     print(f'\nSQLAlchemy Core: Total time for {row_count} records for table global_temperature_by_major_city'
           f' {time.time() - t0} secs\n')
 
-# Get the GlobalLandTemperaturesByCity.csv file to read data from: path where the program resides
+'''# Get the GlobalLandTemperaturesByCity.csv file to read data from: path where the program resides
 filename = os.path.join(os.path.dirname(__file__),
                         '..',
                         'Resources',
@@ -376,6 +377,7 @@ with open(filename, 'r') as csvfile:
 
     print(f'\nSQLAlchemy Core: Total time for {row_count} records for co2_data'
           f' {time.time() - t0} secs\n')
+'''
 
 # Get the atmospheric-concentration-of-pollutant.csv file to read data from: path where the program resides
 filename = os.path.join(os.path.dirname(__file__),

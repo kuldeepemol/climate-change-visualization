@@ -2,6 +2,10 @@ function buildGlobalCharts() {
     buildGlobalTemperatureChart()
 }
 
+function getSum(total, num) {
+    return total + num;
+}
+
 function buildGlobalTemperatureChart () {
 
     // Use `d3.json` to fetch the sample data for the plots
@@ -12,8 +16,13 @@ function buildGlobalTemperatureChart () {
         var dates = data.date.map(function(d) {
             var temp_d = Date.parse(d);
             var temp_d = new Date(temp_d);
-            return temp_d.getUTCFullYear()+'-'+temp_d.getUTCMonth()+'-'+temp_d.getUTCDate();
+            return temp_d.getUTCFullYear()+'-01-01';
         });
+
+        var changesInTemperatures = getTemperatureChange(data.avg_land_and_ocean_temperature);
+        var avgChangeInTemperature = changesInTemperatures.reduce(getSum);
+
+        avgChangeInTemperature = avgChangeInTemperature/(changesInTemperatures.length);
 
         // Build a scatter Chart using the sample data
         var scatterTrace1 = {
@@ -28,6 +37,7 @@ function buildGlobalTemperatureChart () {
         };
         var scatterData = [scatterTrace1];
         var scatterLayout = {
+            title: 'Average temperature change '+ avgChangeInTemperature.toFixed(2) +' C',
             xaxis: { title: 'Year'},
             yaxis: { title: 'Average Temperature (C)'},
         };
@@ -57,7 +67,7 @@ function buildCharts(city, country, period) {
         var dates = data.date.map(function(d) {
             var temp_d = Date.parse(d);
             var temp_d = new Date(temp_d);
-            return temp_d.getUTCFullYear()+'-'+temp_d.getUTCMonth()+'-'+temp_d.getUTCDate();
+            return temp_d.getUTCFullYear()+'-01-01';
         });
 
         // Build a scatter Chart using the sample data
@@ -80,7 +90,11 @@ function buildCharts(city, country, period) {
 
         Plotly.newPlot('scatter', scatterData, scatterLayout);
 
-        var changesInTemperatures = getTemperatureChange(data.temperature)
+        var changesInTemperatures = getTemperatureChange(data.temperature);
+        var avgChangeInTemperature = changesInTemperatures.reduce(getSum);
+
+        avgChangeInTemperature = avgChangeInTemperature/(changesInTemperatures.length);
+
         // Build a bar Chart using the sample data
         var barTrace1 = {
             x: dates,
@@ -93,7 +107,7 @@ function buildCharts(city, country, period) {
         };
         var barData = [barTrace1];
         var barLayout = {
-            title: 'Change in Temperature over time period (1850 - 2013) ',
+            title: 'Change in Temperature over time period (1850 - 2013) '+ avgChangeInTemperature.toFixed(2) + ' C',
             xaxis: { title: 'Year'},
             yaxis: { title: 'Change in Temperature (C)'},
         };
@@ -110,12 +124,11 @@ function getTemperatureChange(arr) {
   var changeTemperatures = [];
 
   // Loop through all of the data
-  for (var i = 0; i < arr.length; i++) {
-    if (i != arr.length) {
-        var change = arr[i+1] - arr[i];
+  for (var i = 1; i < arr.length; i++) {
+        var change = arr[i] - arr[i-1];
         // calculate the change and push it to the changes array
         changeTemperatures.push(change);
-    }
+    //}
   }
   return changeTemperatures;
 }

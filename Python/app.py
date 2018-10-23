@@ -1,9 +1,7 @@
 # Dependencies
-from datetime import datetime
 import pandas as pd
-from dbclasses import Base, GlobalTemperature, GlobalTemperatureByState, GlobalTemperatureByCountry,\
-    GlobalTemperatureByCity, GlobalTemperatureByMajorCity, CO2Data, PollutantData
-from sqlalchemy import create_engine, func
+from .dbclasses import Base, GlobalTemperature, GlobalTemperatureByMajorCity, PollutantData
+from sqlalchemy import func
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 
@@ -196,6 +194,58 @@ def timeline_geojson():
                 GlobalTemperatureByMajorCity.city,
                 GlobalTemperatureByMajorCity.country,
                 func.avg(GlobalTemperatureByMajorCity.land_average_temperature).label('avg_land_temperature')
+            ).group_by(
+                GlobalTemperatureByMajorCity.city,
+                GlobalTemperatureByMajorCity.country,
+                func.strftime('%Y', GlobalTemperatureByMajorCity.date)
+            )
+
+    features = []
+
+    for row in query.all():
+
+        feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [row.latitude, row.longitude]
+            },
+            "properties": {
+                "average_temperature": row.avg_land_temperature,
+                "name": row.city + ', ' + row.country,
+                "start": "1850-01-01",
+                "end": "2015-01-01",
+                "time": row.date,
+            }
+        }
+
+        features.append(feature)
+
+    # Format the data to send as GeoJSON
+    data = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+
+    return jsonify(data)
+
+
+# Get all the all the data by city for temperature
+@app.route("/timeline/geoJSON/<date>")
+def timeline_geojson_date(date):
+
+    """Return a list of temperature for a global."""
+
+    # Perform the sql query
+    query = db.session.query(
+                GlobalTemperatureByMajorCity.date,
+                GlobalTemperatureByMajorCity.latitude,
+                GlobalTemperatureByMajorCity.longitude,
+                GlobalTemperatureByMajorCity.city,
+                GlobalTemperatureByMajorCity.country,
+                func.avg(GlobalTemperatureByMajorCity.land_average_temperature).label('avg_land_temperature')
+            ).filter(
+                GlobalTemperatureByMajorCity.date == date
             ).group_by(
                 GlobalTemperatureByMajorCity.city,
                 GlobalTemperatureByMajorCity.country,
