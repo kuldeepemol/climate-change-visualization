@@ -22,7 +22,6 @@ L.TimeDimension.Layer.APIHeatMap = L.TimeDimension.Layer.extend({
         var config = {};
         var defaultConfig = {
             radius: 15,
-            blur: 25,
             maxOpacity: .8,
             scaleRadius: false,
             useLocalExtrema: false,
@@ -80,7 +79,7 @@ L.TimeDimension.Layer.APIHeatMap = L.TimeDimension.Layer.extend({
                     this._currentTimeData.data.push({
                         lat: marker.location.latitude,
                         lng: marker.location.longitude,
-                        count: marker.average_temperature,
+                        count: marker.average_temperature || 5,
                     });
                 }
             }
