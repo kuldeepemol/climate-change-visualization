@@ -231,8 +231,8 @@ def timeline_geojson():
 
 
 # Get all the all the data by city for temperature
-@app.route("/timeline/geoJSON/<date>")
-def timeline_geojson_date(date):
+@app.route("/timeline/json/<date>")
+def timeline_json_date(date):
 
     """Return a list of temperature for a global."""
 
@@ -257,29 +257,18 @@ def timeline_geojson_date(date):
     for row in query.all():
 
         feature = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [row.latitude, row.longitude]
+            'location': {
+                'latitude': row.latitude,
+                'longitude': row.longitude,
             },
-            "properties": {
-                "average_temperature": row.avg_land_temperature,
-                "name": row.city + ', ' + row.country,
-                "start": "1850-01-01",
-                "end": "2015-01-01",
-                "time": row.date,
-            }
+            "average_temperature": row.avg_land_temperature,
+            "name": row.city + ', ' + row.country,
+            "time": row.date,
         }
 
         features.append(feature)
 
-    # Format the data to send as GeoJSON
-    data = {
-        "type": "FeatureCollection",
-        "features": features
-    }
-
-    return jsonify(data)
+    return jsonify(features)
 
 
 if __name__ == "__main__":

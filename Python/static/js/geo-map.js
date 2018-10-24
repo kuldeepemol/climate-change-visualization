@@ -20,13 +20,19 @@ var baseMaps = {
     "Grayscale": grayscalemap,
 };
 
-var currentTime = new Date('2000-01-01');
+var currentTime = new Date('1850-01-01');
 
 // Create our map, giving it the satellite map, earthquakes and faultline layers to display on load
 var myMap = L.map("map-timeline", {
     center: [0, 0],
     zoom: 1.5,
     layers: [grayscalemap],
+    timeDimension: true,
+    timeDimensionOptions: {
+        timeInterval: "1850-01-01/2013-01-01",
+        period: "P1Y",
+        currentTime: currentTime
+    },
 });
 
 // Create a layer control
@@ -36,28 +42,21 @@ L.control.layers(baseMaps, '', {
     collapsed: false
 }).addTo(myMap);
 
-var url = "/timeline/geoJSON";
-
-d3.json(url).then(function(geoJSON) {
-
-    var heatArray = [];
-
-    geoJSON.features.forEach(r => {
-        heatArray.push([
-            r.geometry.coordinates[0],
-            r.geometry.coordinates[1],
-            r.properties.average_temperature,
-         ]);
-    })
-
-    var heat = L.heatLayer(heatArray, {
-        radius: 15,
-        blur: 25
-    }).addTo(myMap);
-
+// Customer HeatMap year with timeline
+var testapiHeatLayer = L.timeDimension.layer.apiHeatMap({
+    baseURL: 'timeline/data/1850-01-01',
 });
+testapiHeatLayer.addTo(myMap);
 
-//var testGeoJsonLayer = L.timeDimension.layer.ajaxGeoJSON({
-//    baseURL: 'timeline/geoJSON/',
-//});
-//testGeoJsonLayer.addTo(myMap);
+L.Control.TimeDimensionCustom = L.Control.TimeDimension.extend({
+    _getDisplayDateFormat: function(date){
+        return 'Year '+date.getUTCFullYear();
+    }
+});
+var timeDimensionControl = new L.Control.TimeDimensionCustom({
+    playerOptions: {
+        buffer: 1,
+        minBufferReady: -1
+    }
+});
+myMap.addControl(this.timeDimensionControl);

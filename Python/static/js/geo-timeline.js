@@ -1,13 +1,18 @@
-L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
+Date.prototype.format = function (mask, utc) {
+    return dateFormat(this, mask, utc);
+};
 
-    initialize: function(layer, options) {
-        var heatmapCfg = this._getHeatmapOptions();
+// Attibution: API requests based
+L.TimeDimension.Layer.APIHeatMap = L.TimeDimension.Layer.extend({
+
+    initialize: function(options) {
+        var heatmapCfg = this._getHeatmapOptions(options.heatmatOptions || {});
         var layer = new HeatmapOverlay(heatmapCfg);
         L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
         this._currentLoadedTime = 0;
         this._currentTimeData = {
-            max: 10,
-            data: [],
+            max: this.options.heatmapMax || 10,
+            data: []
         };
         this._baseURL = this.options.baseURL || null;
         this._period = this.options.period || "P1Y";
@@ -17,12 +22,13 @@ L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
         var config = {};
         var defaultConfig = {
             radius: 15,
+            blur: 25,
             maxOpacity: .8,
             scaleRadius: false,
             useLocalExtrema: false,
             latField: 'lat',
             lngField: 'lng',
-            valueField: 'avg_temp'
+            valueField: 'count'
         };
         for (var attrname in defaultConfig) {
             config[attrname] = defaultConfig[attrname];
@@ -35,6 +41,7 @@ L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
 
     onAdd: function(map) {
         L.TimeDimension.Layer.prototype.onAdd.call(this, map);
+        map.addLayer(this._baseLayer);
         if (this._timeDimension) {
             this._getDataForTime(this._timeDimension.getCurrentTime());
         }
@@ -50,43 +57,33 @@ L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
     },
 
     _update: function() {
-        if (!this._map)
-            return;
-        var layer = L.geoJson(this._currentTimeData.data, this._baseLayer.options);
-        if (this._currentLayer) {
-            this._map.removeLayer(this._currentLayer);
-        }
-        layer.addTo(this._map);
-        this._currentLayer = layer;
-    },
-
-    /*_update: function() {
         this._baseLayer.setData(this._currentTimeData);
         return true;
-    }*/
+    },
 
     _getDataForTime: function(time) {
-        if (!this._map) {
+        if (!this._baseURL || !this._map) {
             return;
         }
         var d = new Date(time);
-        //var url = 'timeline/geoJSON/' + d.getUTCFullYear() + '-0' + d.getUTCMonth() + '-0' + d.getUTCDate();
-        var url = 'timeline/geoJSON/' + d.getUTCFullYear() + '-01-01';
-        console.log(url);
-        var callback = function(status, data) {
+        var url = '/timeline/json/' + d.getUTCFullYear()+'-01-01';
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", (function(xhr) {
+            var response = xhr.currentTarget.response;
+            var data = JSON.parse(response);
+            delete this._currentTimeData.data;
 
-            this._currentTimeData.data = data;
-//            for (var i = 0; i < data.features.length; i++) {
-//                var marker = data.features[i];
-//                console.log(marker);
-//                if (marker.location) {
-//                    this._currentTimeData.data.push({
-//                        lat: marker.geometry.coordinates[0],
-//                        lng: marker.geometry.coordinates[1],
-//                        avg_temp: marker.properties.average_temperature
-//                    });
-//                }
-//            }
+            this._currentTimeData.data = [];
+            for (var i = 0; i < data.length; i++) {
+                var marker = data[i];
+                if (marker.location) {
+                    this._currentTimeData.data.push({
+                        lat: marker.location.latitude,
+                        lng: marker.location.longitude,
+                        count: marker.average_temperature,
+                    });
+                }
+            }
             this._currentLoadedTime = time;
             if (this._timeDimension && time == this._timeDimension.getCurrentTime() && !this._timeDimension.isLoading()) {
                 this._update();
@@ -94,11 +91,15 @@ L.TimeDimension.Layer.AjaxGeoJSON = L.TimeDimension.Layer.extend({
             this.fire('timeload', {
                 time: time
             });
-        };
-        $.getJSON(url, callback.bind(this, 'ok')).fail(callback.bind(this, 'error'));
+        }).bind(this));
+
+        oReq.open("GET", url);
+        oReq.send();
+
     },
+
 });
 
-L.timeDimension.layer.ajaxGeoJSON = function(layer, options) {
-    return new L.TimeDimension.Layer.AjaxGeoJSON(layer, options);
+L.timeDimension.layer.apiHeatMap = function(options) {
+    return new L.TimeDimension.Layer.APIHeatMap(options);
 };
